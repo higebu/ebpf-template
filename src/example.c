@@ -1,12 +1,12 @@
 #define KBUILD_MODNAME "foo"
 #include <linux/if_ether.h>
-#include <uapi/linux/bpf.h>
 
+#include "bpf.h"
 #include "bpf_helpers.h"
 
 struct bpf_map_def SEC("maps") rxcnt = {
     .type = BPF_MAP_TYPE_PERCPU_ARRAY,
-    .key_size = sizeof(u32),
+    .key_size = sizeof(__u32),
     .value_size = sizeof(long),
     .max_entries = 256,
 };
@@ -18,8 +18,8 @@ int prog(struct xdp_md *ctx) {
   struct ethhdr *eth = data;
   int rc = XDP_DROP;
   long *value;
-  u16 h_proto;
-  u64 nh_off;
+  __u16 h_proto;
+  __u64 nh_off;
 
   nh_off = sizeof(*eth);
   if (data + nh_off > data_end)

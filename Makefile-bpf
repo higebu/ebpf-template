@@ -1,51 +1,38 @@
+obj := .
+src := .
+
+
 DEBUGBPF = -DDEBUG
-#DEBUGBPF = ""
-INCLUDEFLAGS = -I$(objtree)/usr/include
 DEBUGFLAGS = -O0 -g -Wall
-RELEASEFLAGS = -O2 -Wall
 PFLAGS = $(DEBUGFLAGS)
 
+INCLUDEFLAGS = -I$(obj)/usr/include \
+	       -I$(obj)/include \
+
+
+
+always = src/example.o
+# always += src/a.o
+
+HOSTCFLAGS += $(INCLUDEFLAGS) $(PFLAGS)
+HOSTCFLAGS_bpf_load.o += $(INCLUDEFLAGS) $(PFLAGS) -Wno-unused-variable
+
+
+# Allows pointing LLC/CLANG to a LLVM backend with bpf support, redefine on cmdline:
+#  make samples/bpf/ LLC=~/git/llvm/build/bin/llc CLANG=~/git/llvm/build/bin/clang
 LLC ?= llc
 CLANG ?= clang
 
-always += src/example.o
-
-HOSTCFLAGS += $(INCLUDEFLAGS) $(PFLAGS)
-
 # Trick to allow make to be run from this directory
-all:
+all: $(always)
 	$(MAKE) -C .. $$PWD/
-
+	
 clean:
 	$(MAKE) -C .. M=$$PWD clean
 	@rm -f *~
 
-# Verify LLVM compiler tools are available and bpf target is supported by llc
-.PHONY: verify_cmds verify_target_bpf $(CLANG) $(LLC)
-
-verify_cmds: $(CLANG) $(LLC)
-	@for TOOL in $^ ; do \
-		if ! (which -- "$${TOOL}" > /dev/null 2>&1); then \
-			echo "*** ERROR: Cannot find LLVM tool $${TOOL}" ;\
-			exit 1; \
-		else true; fi; \
-	done
-
-verify_target_bpf: verify_cmds
-	@if ! (${LLC} -march=bpf -mattr=help > /dev/null 2>&1); then \
-		echo "*** ERROR: LLVM (${LLC}) does not support 'bpf' target" ;\
-		echo "   NOTICE: LLVM version >= 3.7.1 required" ;\
-		exit 2; \
-	else true; fi
-
-$(src)/src/*.c: verify_target_bpf
-
 $(obj)/src/%.o: $(src)/src/%.c
-	$(CLANG) $(NOSTDINC_FLAGS) $(LINUXINCLUDE) $(INCLUDEFLAGS) $(EXTRA_CFLAGS) \
-		-I$(srctree)/tools/testing/selftests/bpf/ \
-		$(DEBUGBPF) -D__KERNEL__  -D__BPF_TRACING__ -Wno-unused-value -Wno-pointer-sign \
+	$(CLANG) $(INCLUDEFLAGS) $(EXTRA_CFLAGS) \
+	$(DEBUGBPF) -D__KERNEL__ -Wno-unused-value -Wno-pointer-sign \
 		-Wno-compare-distinct-pointer-types \
-		-Wno-gnu-variable-sized-type-not-at-end \
-		-Wno-address-of-packed-member -Wno-tautological-compare \
-		-Wno-unknown-warning-option \
 		-O2 -emit-llvm -c -g $< -o -| $(LLC) -march=bpf -filetype=obj -o $@
