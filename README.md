@@ -5,5 +5,5 @@ eBPF template repository for building eBPF object file.
 ## build eBPF object file
 
 ```
-./build.sh
+make
 ```

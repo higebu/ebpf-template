@@ -6,8 +6,7 @@ DEBUGBPF = -DDEBUG
 DEBUGFLAGS = -O0 -g -Wall
 PFLAGS = $(DEBUGFLAGS)
 
-INCLUDEFLAGS = -I$(obj)/usr/include \
-	       -I$(obj)/include \
+INCLUDEFLAGS = -I$(obj)/include
 
 
 

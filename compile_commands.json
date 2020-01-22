@@ -1,0 +1,22 @@
+[
+    {
+        "arguments": [
+            "clang",
+            "-c",
+            "-I./include",
+            "-DDEBUG",
+            "-D__KERNEL__",
+            "-Wno-unused-value",
+            "-Wno-pointer-sign",
+            "-Wno-compare-distinct-pointer-types",
+            "-O2",
+            "-emit-llvm",
+            "-g",
+            "-o",
+            "-",
+            "src/example.c"
+        ],
+        "directory": "/home/debian/ghq/github.com/higebu/ebpf-template",
+        "file": "src/example.c"
+    }
+]
