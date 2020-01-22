@@ -17,13 +17,12 @@ int prog(struct xdp_md *ctx) {
   void *data = (void *)(long)ctx->data;
   struct ethhdr *eth = data;
   long *value;
-  int rc = XDP_PASS;
   __u32 h_proto;
   __u64 nh_off;
 
   nh_off = sizeof(*eth);
   if (data + nh_off > data_end)
-    return rc;
+    return XDP_DROP;
 
   h_proto = (__u32)eth->h_proto;
 
@@ -32,7 +31,7 @@ int prog(struct xdp_md *ctx) {
     *value += 1;
   };
 
-  return rc;
+  return XDP_PASS;
 }
 
 char _license[] SEC("license") = "GPL";

@@ -7,3 +7,9 @@ eBPF template repository for building eBPF object file.
 ```
 make
 ```
+
+## test
+
+```
+make test
+```
