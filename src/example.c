@@ -16,20 +16,21 @@ int prog(struct xdp_md *ctx) {
   void *data_end = (void *)(long)ctx->data_end;
   void *data = (void *)(long)ctx->data;
   struct ethhdr *eth = data;
-  int rc = XDP_DROP;
   long *value;
-  __u16 h_proto;
+  int rc = XDP_PASS;
+  __u32 h_proto;
   __u64 nh_off;
 
   nh_off = sizeof(*eth);
   if (data + nh_off > data_end)
     return rc;
 
-  h_proto = eth->h_proto;
+  h_proto = (__u32)eth->h_proto;
 
   value = bpf_map_lookup_elem(&rxcnt, &h_proto);
-  if (value)
+  if (value) {
     *value += 1;
+  };
 
   return rc;
 }
