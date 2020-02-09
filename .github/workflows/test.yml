@@ -1,0 +1,32 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: |
+        wget https://launchpad.net/ubuntu/+source/bluez/5.48-0ubuntu3.2/+build/17810460/+files/libbluetooth3_5.48-0ubuntu3.2_amd64.deb
+        sudo dpkg -i ./libbluetooth3_5.48-0ubuntu3.2_amd64.deb
+        sudo apt-get install -y --no-install-recommends qemu-system-x86 busybox-static libelf-dev
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: checkout
+      uses: actions/checkout@v1
+    - name: Install libbpf
+      run: |
+        ./install_libbpf.sh
+    - name: Run test
+      run: |
+        git clone https://github.com/amluto/virtme.git
+        pushd virtme
+        pip install .
+        popd
+        ./run-test.sh 5.4.5
+      env:
+        VIRTME_RUN: ./virtme/virtme-run

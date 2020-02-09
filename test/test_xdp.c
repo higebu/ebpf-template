@@ -17,7 +17,7 @@ struct ipv4_packet {
 	struct ethhdr eth;
 	struct iphdr iph;
 	struct tcphdr tcp;
-} __packed;
+} __attribute__((packed));
 extern struct ipv4_packet pkt_v4;
 
 struct ipv4_packet pkt_v4 = {
